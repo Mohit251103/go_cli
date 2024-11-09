@@ -1,4 +1,4 @@
-module github.com/Mohit251103/go_cli.git
+module github.com/Mohit251103/go_cli
 
 go 1.23.2
 
