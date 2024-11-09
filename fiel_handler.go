@@ -21,7 +21,15 @@ func generateUUID() string {
 }
 
 func file_io() {
+	help := flag.Bool("help", false, "Help with commands")
 	flag.Parse()
+
+	if *help {
+		fmt.Println(" -------- Todo Command Line -----------")
+		fmt.Println("Commands :- ")
+		fmt.Println("1. add `task` -- To add a todo\n2. delete [id] -- Pass id to delete a specific todo or all will be deleted\n3. list -- To list all the todos")
+		os.Exit(0)
+	}
 
 	args := flag.Args()
 
@@ -120,15 +128,33 @@ func file_io() {
 		}
 
 	} else if args[0] == "list" {
-		fmt.Println(args[0])
 		file, err = os.OpenFile("todo.json", os.O_RDONLY|os.O_CREATE, 0744)
 		if err != nil {
 			log.Fatal("Error occurred", err)
 			os.Exit(1)
 		}
 
+		fileData, err := os.ReadFile("todo.json")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		} else {
+			var todos []Todo
+			err := json.Unmarshal(fileData, &todos)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+
+			fmt.Println("File Data : ")
+			fmt.Println("Created On ------- Task : Id")
+			for _, todo := range todos {
+				fmt.Println(todo.Created, "------", todo.Tag, ":", todo.Id)
+			}
+		}
+
 	} else {
-		log.Fatalf("Unknown args %s", args[0])
+		log.Fatalf("Unknown command %s\nFor commands type --help", args[0])
 	}
 	defer file.Close()
 
