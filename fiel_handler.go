@@ -118,17 +118,51 @@ func file_io() {
 			}
 		} else {
 			if len(args) < 2 {
-				log.Fatalf("Give the id of tag to delete. Use command `list` to display the todo with id.")
+				// delete all the todo
+				var perm rune
+				fmt.Print("Do you want to delete all the todos ? (y/n) ")
+				fmt.Scanf("%c", &perm)
+				if perm == 'y' || perm == 'Y' {
+					var fileData []byte
+					err := os.WriteFile("todo.json", fileData, fs.FileMode(os.O_WRONLY))
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					fmt.Println("Deleted all the todos")
+					os.Exit(0)
+				}
 			} else {
 				var todos []Todo
-				decoder := json.NewDecoder(file)
-				err := decoder.Decode(&todos)
+				fileData, err := os.ReadFile("todo.json")
+				if err != nil {
+					fmt.Println(err)
+					os.Exit(1)
+				}
+				err = json.Unmarshal(fileData, &todos)
 				if err != nil {
 					fmt.Println("Error here ", err)
 					os.Exit(1)
 				}
-				fmt.Println(todos)
-				fmt.Printf("Deleted todo with id %s", args[1])
+
+				var newTodos []Todo
+				for _, todo := range todos {
+					if todo.Id != args[1] {
+						newTodos = append(newTodos, todo)
+					}
+				}
+
+				fileData, err = json.MarshalIndent(newTodos, "", " ")
+				if err != nil {
+					fmt.Println("Error here ", err)
+					os.Exit(1)
+				}
+				err = os.WriteFile("todo.json", fileData, fs.FileMode(os.O_WRONLY))
+				if err != nil {
+					fmt.Println("Error here ", err)
+					os.Exit(1)
+				}
+				fmt.Println("Deleted todo with id ", args[1])
 				os.Exit(0)
 			}
 		}
