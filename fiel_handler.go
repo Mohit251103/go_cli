@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Todo struct {
@@ -48,7 +50,7 @@ func file_io() {
 				log.Fatalf("Give a todo to add")
 			} else {
 				todo := Todo{
-					Id:      generateUUID(),
+					Id:      uuid.NewString(),
 					Tag:     args[1],
 					Created: time.Now().Local().String(),
 				}
@@ -57,7 +59,11 @@ func file_io() {
 				fileData, err := os.ReadFile("todo.json")
 
 				if err == nil && len(fileData) > 0 {
-					// err := json.Unmarshal(fileData, &todos)
+					err := json.Unmarshal(fileData, &todos)
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
+					}
 					// if err != nil {
 					// 	err := json.Unmarshal(fileData, &singleTodo)
 					// 	if err != nil {
