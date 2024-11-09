@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"os"
 	"time"
@@ -45,41 +46,57 @@ func file_io() {
 				}
 
 				var todos []Todo
-				var singleTodo Todo
 				fileData, err := os.ReadFile("todo.json")
 
 				if err == nil && len(fileData) > 0 {
-					err := json.Unmarshal(fileData, &todos)
+					// err := json.Unmarshal(fileData, &todos)
+					// if err != nil {
+					// 	err := json.Unmarshal(fileData, &singleTodo)
+					// 	if err != nil {
+					// 		fmt.Println("here : ", err)
+					// 		os.Exit(1)
+					// 	}
+					// 	todos = append(todos, singleTodo)
+					// 	jsonData, err := json.MarshalIndent(todos, "", " ")
+					// 	if err != nil {
+					// 		fmt.Println(err)
+					// 		os.Exit(1)
+					// 	}
+					// 	_, err = file.Write(jsonData)
+					// 	if err != nil {
+					// 		log.Fatal(err)
+					// 		os.Exit(1)
+					// 	}
+					// } else {
+					todos = append(todos, todo)
+					jsonData, err := json.MarshalIndent(todos, "", " ")
 					if err != nil {
-						err := json.Unmarshal(fileData, &singleTodo)
-						if err != nil {
-							fmt.Println("here : ", err)
-							os.Exit(1)
-						}
-						todos = append(todos, singleTodo)
-						jsonData, err := json.MarshalIndent(todos, "", " ")
-						if err != nil {
-							fmt.Println(err)
-							os.Exit(1)
-						}
-						_, err = file.Write(jsonData)
-						if err != nil {
-							log.Fatal(err)
-							os.Exit(1)
-						}
+						fmt.Println(err)
+						os.Exit(1)
+					}
+					err = os.WriteFile("todo.json", jsonData, fs.FileMode(os.O_WRONLY))
+					if err != nil {
+						log.Fatal(err)
+						os.Exit(1)
+					}
+					// }
+				} else {
+
+					todos = append(todos, todo)
+					jsonData, err := json.MarshalIndent(todos, "", " ")
+					if err != nil {
+						fmt.Println(err)
+						os.Exit(1)
 					} else {
-						todos = append(todos, todo)
-						jsonData, err := json.MarshalIndent(todos, "", " ")
+						_, err := file.Write(jsonData)
 						if err != nil {
 							fmt.Println(err)
 							os.Exit(1)
-						}
-						_, err = file.Write(jsonData)
-						if err != nil {
-							log.Fatal(err)
-							os.Exit(1)
+						} else {
+							fmt.Println("Todo added successfully: ", todos)
 						}
 					}
+
 				}
 
 				fmt.Println("Added todo")
